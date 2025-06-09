@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.http.ResponseEntity.ok;
@@ -34,5 +35,32 @@ public class PlayerController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PostMapping("/player")
+    public ResponseEntity<Player> insertPlayer(@RequestBody Player playerData) {
+        Player player = playerService.addPlayer(playerData);
+        if(player != null) {
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(player, HttpStatus.BAD_REQUEST);
+    }
+
+    @PutMapping("/player")
+    public ResponseEntity<Optional<Player>> updatePlayer(@RequestBody Player playerData) {
+        Optional<Player> player = playerService.updatePlayer(playerData);
+        if(player != null) {
+            return new ResponseEntity<>(player, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(player, HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/players")
+    public ResponseEntity<List<Player>> insertPlayers(@RequestBody List<Player> playerData) {
+        List<Player> players = playerService.addPlayers(playerData);
+        if(!players.isEmpty()) {
+            return new ResponseEntity<>(players, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(players, HttpStatus.BAD_REQUEST);
     }
 }
