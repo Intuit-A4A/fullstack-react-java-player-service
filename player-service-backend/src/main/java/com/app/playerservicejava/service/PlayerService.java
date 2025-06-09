@@ -3,6 +3,8 @@ package com.app.playerservicejava.service;
 import com.app.playerservicejava.model.Player;
 import com.app.playerservicejava.model.Players;
 import com.app.playerservicejava.repository.PlayerRepository;
+import com.app.playerservicejava.service.chat.ChatClientService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +22,9 @@ public class PlayerService {
 
     @Autowired
     private PlayerRepository playerRepository;
+
+    @Autowired 
+    private ChatClientService chatService;
 
     public Players getPlayers() {
         Players players = new Players();
@@ -77,6 +83,38 @@ public class PlayerService {
         } catch (Exception e) {
             LOGGER.error("message=Exception in updatePlayerById; exception={}", e.toString());
             return player;
+        }
+    }
+
+    public HashMap<String, String> playerToMap(Player player) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("playerId", player.getPlayerId());
+        map.put("firstName", player.getFirstName());
+        map.put("lastName", player.getLastName());
+        map.put("birthYear", player.getBirthYear());
+        map.put("birthMonth", player.getBirthMonth());
+        map.put("birthDay", player.getBirthDay());
+        map.put("birthCountry", player.getBirthCountry());
+        map.put("birthState", player.getBirthState());
+        map.put("birthCity", player.getBirthCity());
+        map.put("deathYear", player.getDeathYear());
+        map.put("deathMonth", player.getDeathMonth());
+        map.put("deathDay", player.getDeathDay());
+        map.put("deathCountry", player.getDeathCountry());
+        // Add other fields as needed
+        return map;
+    }
+
+    public String analyzePlayer(String playerId) {
+        Optional<Player> player = this.getPlayerById(playerId);
+
+        if (player.isPresent()) {
+            return chatService.chatV2(
+                "Analyze the given player based on provided info, {{playerId}}, {{firstName}}",
+                this.playerToMap(player.get())
+            );
+        } else {
+            return "Player not found";
         }
     }
 

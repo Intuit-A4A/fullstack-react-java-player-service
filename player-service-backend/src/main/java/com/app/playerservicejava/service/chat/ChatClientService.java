@@ -14,11 +14,11 @@ import io.github.ollama4j.utils.PromptBuilder;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
 public class ChatClientService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChatClientService.class);
 
     @Autowired
     private OllamaAPI ollamaAPI;
@@ -26,6 +26,38 @@ public class ChatClientService {
     public List<Model> listModels() throws OllamaBaseException, IOException, URISyntaxException, InterruptedException {
         List<Model> models = ollamaAPI.listModels();
         return models;
+    }
+
+    public String chatV2(String prompt, HashMap<String, String> contextVars) {
+        String model = OllamaModelType.TINYLLAMA;
+
+        for (String key : contextVars.keySet()) {
+            String placeholder = "{{" + key + "}}";
+            String value = contextVars.get(key);
+            if (value != null) {
+                prompt = prompt.replace(placeholder, value);
+            }
+        }
+
+        PromptBuilder promptBuilder =
+                new PromptBuilder()
+                        .addLine(prompt);
+
+        boolean raw = false;
+        OllamaResult response = null;
+        try {
+            response = ollamaAPI.generate(model, promptBuilder.build(), raw, new OptionsBuilder().build());
+        } catch (OllamaBaseException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return response.getResponse();
     }
 
     public String chat() throws OllamaBaseException, IOException, InterruptedException {
