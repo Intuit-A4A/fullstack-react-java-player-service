@@ -2,7 +2,7 @@ package com.app.playerservicejava.controller.chat;
 
 import com.app.playerservicejava.service.chat.ChatClientService;
 import io.github.ollama4j.exceptions.OllamaBaseException;
-import io.github.ollama4j.models.Model;
+import io.github.ollama4j.models.response.Model; // ollama 1.0.80+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,11 @@ public class ChatController {
 
     @GetMapping("/list-models")
     public ResponseEntity<List<Model>> listModels() throws OllamaBaseException, IOException, URISyntaxException, InterruptedException {
-        List<Model> models = chatClientService.listModels();
-        return ResponseEntity.ok(models);
+        // try {
+          List<Model> models = chatClientService.listModels();
+          return ResponseEntity.ok(models);
+        // } catch(Exception e) {
+        //   throw e;
+        // }
     }
 }
